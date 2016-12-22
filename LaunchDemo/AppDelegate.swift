@@ -16,10 +16,65 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        self.window = UIWindow.init(frame: UIScreen.main.bounds)
+        self.window?.backgroundColor = UIColor.white
+        UIApplication.shared.statusBarStyle = .lightContent
+        let rootNVC = UINavigationController(rootViewController : ViewController())
+        rootNVC.navigationBar.barTintColor = UIColor.black
+        rootNVC.navigationBar.titleTextAttributes = [NSForegroundColorAttributeName:UIColor.white]
+        rootNVC.navigationBar.tintColor = UIColor.white
+        
+        //判断用户是不是第一次启动APP
+        if !UserDefaults.standard.bool(forKey: "firstLaunch") {
+            UserDefaults.standard.set(true, forKey: "firstLaunch")
+            //新手导引
+            let launch = LaunchViewController.init(mainVC: rootNVC, viewControllerType: LaunchViewControllerType.GreenhandLaunchViewController)
+            launch.imageNameArray = ["新手指导1","新手指导2"]
+            self.window?.rootViewController = launch
+            self.window?.makeKeyAndVisible()
+        }else{
+//            广告=======
+            let launch = LaunchViewController.init(mainVC: rootNVC, viewControllerType: LaunchViewControllerType.ADLaunchViewController)
+            launch.setImageURL(imageURL: "http://pic.qiantucdn.com/58pic/17/80/57/94s58PICA7j_1024.jpg")
+            launch.adURL = "http://www.jianshu.com/users/e39da354ce50/latest_articles"
+            //GIF
+            //        let launch = LaunchViewController.init(mainVC: ViewController(), viewControllerType: LaunchViewControllerType.GifBackgroundLaunchViewController)
+            //        launch.gifImageName = "动图"
+            //        launch.gifImageURL = ""
+            //滚动图
+            //        let launch = LaunchViewController.init(mainVC: ViewController(), viewControllerType: LaunchViewControllerType.RollImageLaunchViewController)
+            //        launch.rollImageName = "滚动图片.jpeg"
+            self.window?.rootViewController = launch
+            self.window?.makeKeyAndVisible()
+        }
+        self.setup3DTouch(application: application)
         return true
     }
+    @available(iOS 9.0, *)
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void) {
+        let nvc = self.window?.rootViewController as! UINavigationController
+        if shortcutItem.type == "ONE" {
+            let VC = UIViewController()
+            VC.title = "第一个"
+            VC.view.backgroundColor = UIColor.red
+            nvc.pushViewController(VC, animated: true)
+        }else if shortcutItem.type == "TWO"{
+            let VC = UIViewController()
+            VC.title = "第二个"
+            VC.view.backgroundColor = UIColor.green
+            nvc.pushViewController(VC, animated: true)
+        }
+    }
 
+    func setup3DTouch(application : UIApplication){
+        if #available(iOS 9.0, *) {
+            let camereIcon = UIApplicationShortcutIcon.init(type: .compose)
+            let camereItem = UIApplicationShortcutItem.init(type: "ONE", localizedTitle: "拍照", localizedSubtitle: "", icon: camereIcon, userInfo: nil)
+            let shareIcon = UIApplicationShortcutIcon.init(type: .share)
+            let shareItem = UIApplicationShortcutItem.init(type: "TWo", localizedTitle: "分享", localizedSubtitle: "", icon: shareIcon, userInfo: nil)
+            application.shortcutItems = [camereItem,shareItem]
+        }
+    }
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
         // Use this method to pause ongoing tasks, disable timers, and invalidate graphics rendering callbacks. Games should use this method to pause the game.
@@ -41,11 +96,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func applicationWillTerminate(_ application: UIApplication) {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
         // Saves changes in the application's managed object context before the application terminates.
-        self.saveContext()
+//        self.saveContext()
     }
 
     // MARK: - Core Data stack
 
+    @available(iOS 10.0, *)
     lazy var persistentContainer: NSPersistentContainer = {
         /*
          The persistent container for the application. This implementation
@@ -75,19 +131,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     // MARK: - Core Data Saving support
 
-    func saveContext () {
-        let context = persistentContainer.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
-    }
+//    func saveContext () {
+//        if #available(iOS 10.0, *) {
+//            let context = persistentContainer.viewContext
+//        } else {
+//            // Fallback on earlier versions
+//        }
+//        if context.hasChanges {
+//            do {
+//                try context.save()
+//            } catch {
+//                // Replace this implementation with code to handle the error appropriately.
+//                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
+//                let nserror = error as NSError
+//                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+//            }
+//        }
+//    }
 
 }
 
